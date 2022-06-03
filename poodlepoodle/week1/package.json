@@ -1,0 +1,15 @@
+{
+  "name": "week1",
+  "version": "1.0.0",
+  "description": "![image](https://user-images.githubusercontent.com/6462456/170818388-b71e1cb0-07c4-4ab5-821a-f2e965567f3d.png)   _1주차(5월 23일 ~ 5월 29일) : Webpack, Motivation, Node.js & NPM_",
+  "main": "hello.js",
+  "scripts": {
+    "hello": "echo Hello NPM Custom Command!!"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "jquery": "^3.6.0"
+  }
+}
