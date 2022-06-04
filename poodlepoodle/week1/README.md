@@ -109,13 +109,188 @@ function getNum() {
 이러한 특징이 갖는 문제와, 동시에 모듈화의 필요성에 대해서
 어느 정도 와 닿을 수 있겠네요...  
 
-> AMD, Common.js, 그리고...
+---
 
-**AMD**나 **Common.js**, 그리고 원래 스터디 내용에 포함하려 했었지만..  
-그냥 이 블로그 자체가 잘 정리되어 있어서 한 번 다들 읽어 보시면
-좋을 것 같아 링크를 함께 남깁니다!!  
+1주차 목표인 Webpack의 필요성에 대해 잘 이해하고 넘어가기 위해,  
+**자바스크립트의 모듈화 역사**를 [이 포스트](https://ingg.dev/webpack/)를
+참고해서 익히고 넘어가 보기로 해요.  
 
-(참고 링크 : https://ingg.dev/webpack/)
+> IIFE
+
+```javascript
+(function() {
+  statements
+})()
+```
+
+**IIFE**는 즉시 실행 함수 표현(Immediately Invoked Function
+Expression)으로, 정의되자마자 즉시 실행되는 자바스크립트 함수를 의미해요.  
+
+IIFE는 위의 형식처럼, **(definition)()** 의 형태로 사용됩니다.  
+
+```javascript
+(function() {
+  const aName = "Mary"
+})()
+
+aName // Uncaught ReferenceError: aName is not defined
+```
+
+IIFE 내부에서 정의된 변수는 외부 범위에서 접근이 불가능해요.  
+
+```javascript
+const result = (function() {
+  const name = "Mary"
+  return name
+})()
+
+result // "Mary"
+```
+
+IIFE를 변수에 할당하면 IIFE 자체는 저장되지 않고,
+함수가 실행된 결과만 저장돼요.  
+
+IIFE는 보편적으로는 전역 스코프를 오염시키지 않기 위해 사용하는 경우가 많아요.  
+예를 들어, **어떤 버튼의 클릭 횟수를 추적하고 10번 이상 클릭한 뒤에는
+클릭이 되지 않게 하고 싶다**고 가정해 볼까요?  
+
+```html
+<body>
+  <button id="button">버튼</button>
+  <script type="text/javascript">
+    const buttonHandler = (function () {
+      let count = 0;
+      return function(event) {
+        if (count > 9) { // 클릭 횟수가 10번 이상일 때의 처리
+          event.preventDefault();
+          alert('버튼은 열 번 이상 누를 수 없어요.')
+          return;
+        }
+    
+        count += 1; // 이렇게 자체 스코프에서 변수를 관리할 수 있습니다!
+        /* ... 이하 버튼 처리 코드 ... */
+      }
+    })()
+
+    document.querySelector('#button').addEventListener('click', buttonHandler)  
+  </script>
+</body>
+```
+
+전역 스코프에 클릭 횟수를 담는 변수를 만들어서 처리할 수도 있겠지만,
+위의 방법처럼 하면 **전역 스코프를 오염시키지 않고 처리가 가능**합니다.  
+
+하지만 IIFE는 스코프 문제를 해결했음에도
+바로 실행된다는 점에서 모듈화의 해결책은 아니에요.  
+그래서 제안된 것이 **AMD**와 **Common.js**입니다!!  
+
+> Common.js
+
+**Common.js**는 자바스크립트를 브라우저에서뿐만 아니라,
+서버 사이드 애플리케이션이나 데스크톱 애플리케이션에서도
+사용하려고 조직한 자발적 워킹 그룹이에요.  
+대표적으로 **Node.js**에서 Common.js를 사용합니다!
+[(참고 링크)](https://www.commonjs.org)  
+
+Common.js에 의한 모듈화 방식은, `exports` 키워드로 모듈을 만들고
+`require()` 함수로 불러오는 방식이에요.  
+
+이 경우,
+
+- 전역 변수와 지역 변수를 분리하여 모듈이 **독립적인 실행 영역**을 가짐
+- script 태그로 파일을 가져오는 것이 아니라
+**필요한 함수**나 **변수**를 가져올 수 있음
+- `exports`와 `require()`를 이용하여 **의존성 관리** 또한 편리함
+
+위의 특성 때문에 Common.js는 모듈화의 조건을 충족해요!!  
+
+하지만, 브라우저에서 필요한 모듈을 모두 내려받을 때까지
+아무것도 할 수 없게 된다는 결정적인 단점이 있습니다...  
+
+> AMD
+
+**AMD**는 Asynchronous Module Definition라는 의미로,  
+비동기로 로딩되는 환경에서 모듈을 선언해 사용하는 것을 의미해요.  
+이를 구현한 가장 유명한 에시가 **RequireJS**입니다!!  
+
+```javascript
+define(['jquery', 'poodlejs'], function($, P) {
+  console.log($);
+  console.log(P);
+  return {
+    a: $,
+    b: P,
+  }
+});
+```
+
+이 방식은 `define` 함수 내에 코드를 작성함으로써 스코프 분리가 가능합니다.  
+
+내가 쓰고자 하는 다른 사람들의 모듈들을
+_define_ 의 첫 번째 인자 배열에 나열한 후,
+두 번째 인자인 콜백 함수에서 매개변수로 이를 받으면 됩니다.  
+위 예시에서는 jquery는 `$`로, poodlejs는 `P`로 접근할 수 있습니다.  
+
+더 자세한 내용은 [이 링크](https://d2.naver.com/helloworld/591319)를
+참고하면 좋을 것 같아요!!  
+
+> ES6 Module
+
+ES6 이후의 자바스크립트에서는 `export`를 이용해 모듈로 만들고  
+`import`로 이를 불러와 사용할 수 있게 함으로써 모듈화를 구현했어요.  
+
+```javascript
+// math.js
+export function sum(x, y) {
+  return x + y
+}
+```
+
+```javascript
+// app.js
+import * as math from "./math.js"
+// import { sum } from "./math.js"
+
+console.log(math.sum(1, 2));
+```
+
+위 예시에서 `import * as <module_name>`은 모든 export를 가져와요.  
+이 때, `module_name` 매개 변수는 모듈 객체의 이름인 동시에
+`export`를 참조하기 위한 일종의 네임 스페이스로 사용됩니다.  
+
+```html
+<script type="module" src="./src/app.js"></script>
+```
+
+ES6 자바스크립트에서는 클라이언트 사이드 자바스크립트에서도
+동작하는 모듈 기능을 사용할 수 있어요! `script` 태그에
+`type="module"` 속성을 추가하면 모듈로 사용할 수 있습니다!!  
+
+이 때는 `app.js`에서 `math`를 가져오기 때문에 `math.js`는
+따로 로드하지 않아도 됩니다~~  
+
+하지만 이는 아직까지 모든 브라우저에서 지원하지는 않기 때문에..
+브라우저와 무관하게 사용할 수 있는 모듈이 여전히 필요해요.....  
+
+> 그래서, Webpack
+
+![](https://joshua1988.github.io/webpack-guide/assets/img/webpack-bundling.e79747a1.png)
+
+그래서 Webpack을 사용하게 되었습니다.  
+Webpack은 하나의 **시작점(Entry point)** 으로부터
+의존적인 모듈을 전부 찾아내서 하나의 파일로 만들어요.
+이 결과물을 **Output**이라고 합니다.  
+
+![image](https://user-images.githubusercontent.com/6462456/171994902-075e7386-1d8c-49a3-87d5-2c99e93a0367.png)
+
+좀 더 자세한 Webpack의 사용법은 2주차 스터디 내용부터
+함께 공부해 보기로 해요~~~~  
+
+그래도, 이 정도면 Webpack에 이르기까지의 모듈화 역사를 통해
+**커뮤니티가 이 문제를 해결하기 위해 고민해 왔던 내용**과
+**Webpack으로의 도달 과정**을 조금이나마 이해하고 넘어갈 수 있겠죠...?  
+
+---
 
 ## 2. 웹 개발 작업 자동화 도구
 
@@ -993,6 +1168,6 @@ npm --version
 ```
 
 ## 10. NPM 명령어 설명 참조
+```
 ```bash
 npm help <command>
-```
