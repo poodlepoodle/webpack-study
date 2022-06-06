@@ -1,0 +1,19 @@
+{
+  "name": "week2",
+  "version": "1.0.0",
+  "description": "![image](https://user-images.githubusercontent.com/6462456/172036327-e8172ac0-33df-4eed-939e-11c8818f9120.png) _2주차(5월 30일 ~ 6월 5일) : Getting Started, Concepts, Tutorials_",
+  "main": "index.js",
+  "scripts": {
+    "build": "webpack --mode=none"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "webpack": "^5.73.0",
+    "webpack-cli": "^4.9.2"
+  },
+  "dependencies": {
+    "lodash": "^4.17.21"
+  }
+}
